@@ -12,34 +12,68 @@
     </head>
     <body>
         <div id="stage">
+            <div id="display">
+                
+            </div>
             
+            <div id="counterConfig">
+                <div class="counter">
+                    <div>Start: <input type="text" class="start" value="0" /></div>
+                    <div>End: <input type="text" class="end" value="60" /></div>
+                </div>
+            </div>
+            
+            <div id="efrtConfig">
+                <input type="button" value="Display" id="renderDisplay" />
+            </div>
         </div>
         
-        <script id="helloWorld-template" type="text/x-handlebars-template">
-            Hello, {{> formality}}!
+        <script id="counters-template" type="text/x-handlebars-template">
+            {{#each this}}
+                {{> counter}}
+            {{/each}}
         </script>
         
-        <script id="formality-partial" type="text/x-handlebars-template">
-            Mr. {{{tolower name}}}
+        <script id="counter-partial" type="text/x-handlebars-template">
+            {{start}}
         </script>
         
         <script>
-            var stage = $("#stage");
+            var display = $("#display");
+            var counterConfig = $("#counterConfig");
+            var efrtConfig = $("#efrtConfig");
             
-            Handlebars.registerHelper('tolower', function(str) {
-                return str.toLowerCase();
-            });
+            Handlebars.registerPartial("counter", $("#counter-partial").html()); 
             
-            Handlebars.registerPartial("formality", $("#formality-partial").html());
-            
-            function renderTemplate(templateName, data) {
+            function renderTemplate(templateName, div, data) {
                 var template = Handlebars.compile($("#"+templateName+"-template").html());
                 var html = template(data);
-                stage.html(html);
+                div.html(html);
+            }
+            
+            function getCounterConfigData(counterConfig) {
+                var counterConfigs = counterConfig.find(".counter");
+                
+                var counterConfigData = [];
+                counterConfigs.each(function() {
+                    var data = {};
+                    data.start = $(this).find(".start").val();
+                    data.end = $(this).find(".end").val();
+                    
+                    counterConfigData.push(data);
+                });
+                
+                return counterConfigData;
+            }
+            
+            function renderDisplay(display, counterConfig, efrtConfig) {
+                renderTemplate("counters", display, getCounterConfigData(counterConfig));
             }
             
             $(document).ready(function () {
-                renderTemplate("helloWorld", {name: "Puchie"});
+                efrtConfig.find("#renderDisplay").click(function() {
+                    renderDisplay(display, counterConfig, efrtConfig);
+                });
             });
         </script>
     </body>
